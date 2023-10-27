@@ -5,24 +5,17 @@ import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private usersService: UsersService,
-    private jwtService: JwtService,
-  ) {}
+  constructor(private userService: UsersService) {}
 
-  async login(email, password): Promise<{ access_token: string }> {
-    const user = await this.usersService.findOne(email);
+  async validateUser(email: string, password: string) {
+    const user = await this.userService.findByEmail(email);
     if (!user) {
-      throw new UnauthorizedException('이메일을 다시 입력해주세요.');
+      return null;
     }
     const result = await bcrypt.compare(password, user.password);
     if (result) {
-      const payload = { email };
-      return {
-        access_token: await this.jwtService.signAsync(payload),
-      };
-    } else {
-      throw new UnauthorizedException('비밀번호를 다시 입력해주세요.');
+      delete user.password;
     }
+    return user;
   }
 }

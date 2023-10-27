@@ -25,7 +25,7 @@ export class User {
   @Column('varchar')
   nickname: string;
 
-  @Column('varchar')
+  @Column('varchar', { select: false })
   password: string;
 
   @CreateDateColumn()

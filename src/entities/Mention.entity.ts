@@ -1,4 +1,3 @@
-import { CategoryEnum } from 'src/common/enums/category.enum';
 import {
   Column,
   CreateDateColumn,
@@ -18,8 +17,8 @@ export class Mention {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column('enum')
-  category: CategoryEnum;
+  @Column('enum', { enum: ['chat', 'dm', 'system'] })
+  category: 'chat' | 'dm' | 'system';
 
   @CreateDateColumn()
   createdAt: Date;
