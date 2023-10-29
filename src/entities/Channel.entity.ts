@@ -42,4 +42,5 @@ export class Channel {
   @ManyToOne(() => Workspace, (workspace) => workspace.channels)
   @JoinColumn()
   workspace: Workspace;
+  workspaceId: number;
 }

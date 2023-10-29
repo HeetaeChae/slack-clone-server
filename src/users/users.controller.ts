@@ -7,13 +7,15 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiCookieAuth, ApiOperation } from '@nestjs/swagger';
+import { ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { LoggedInGuard } from 'src/auth/logged-in.guard';
 import { NotLoggedInGuard } from 'src/auth/not-logged-in.guard';
 import { DataSource } from 'typeorm';
 import { JoinRequestDto } from './dto/join.request.dto';
 import { UsersService } from './users.service';
 
+@ApiCookieAuth('connect.sid')
+@ApiTags('USER')
 @Controller('users')
 export class UsersController {
   constructor(private usersServie: UsersService) {}

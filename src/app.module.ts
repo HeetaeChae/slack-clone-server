@@ -15,17 +15,18 @@ import { ChannelMember } from './entities/ChannelMember.entity';
 import { Dm } from './entities/Dm.entity';
 import { Mention } from './entities/Mention.entity';
 import { ChannelsModule } from './channels/channels.module';
+import { WorkspacesModule } from './workspaces/workspaces.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: '1.234.53.106',
+      host: process.env.HOST_2,
       port: 3306,
-      username: process.env.USERNAME,
-      password: process.env.PASSWORD,
-      database: process.env.DATABASE,
+      username: process.env.USERNAME_2,
+      password: process.env.PASSWORD_2,
+      database: process.env.DATABASE_2,
       entities: [
         User,
         Workspace,
@@ -53,6 +54,7 @@ import { ChannelsModule } from './channels/channels.module';
     UsersModule,
     AuthModule,
     ChannelsModule,
+    WorkspacesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

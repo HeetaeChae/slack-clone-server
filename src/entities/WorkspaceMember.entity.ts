@@ -33,4 +33,5 @@ export class WorkspaceMember {
   })
   @JoinColumn()
   workspace: Workspace;
+  channelId: number;
 }
