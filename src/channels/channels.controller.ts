@@ -5,19 +5,23 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  UploadedFiles,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ChannelsService } from './channels.service';
-import { ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { LoggedInGuard } from 'src/auth/logged-in.guard';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { GetUser } from 'src/common/decorators/user.decorator';
 import { User } from 'src/entities/User.entity';
 import { CreateChannelDto } from './dto/create-channel.dto';
 import { CreateChatDto } from './dto/create-chat.dto';
+import { AuthGuard } from 'src/auth/auth.guard';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { multerOptions } from 'src/utils/multer.options';
 
 @ApiTags('CHANNEL')
-@ApiCookieAuth('connect.sid')
-@UseGuards(LoggedInGuard)
+@ApiBearerAuth('jwt')
+@UseGuards(AuthGuard)
 @Controller('workspaces')
 export class ChannelsController {
   constructor(private channelsService: ChannelsService) {}
@@ -32,10 +36,11 @@ export class ChannelsController {
 
   @ApiOperation({
     summary:
-      ' 워크스페이스 url, 채널 name으로 채널 가져오기 (채널 가져오기 기능)',
+      '워크스페이스 url, 채널 name으로 채널 가져오기 (채널 가져오기 기능)',
   })
-  @Get(':url/channles/:name')
+  @Get(':url/channels/:name')
   getWorkspaceChannel(@Param('url') url: string, @Param('name') name: string) {
+    console.log(url, name);
     return this.channelsService.getWorkspaceChannel(url, name);
   }
 
@@ -46,7 +51,7 @@ export class ChannelsController {
   @Post(':url/channels')
   createWorkspaceChannel(
     @Param('url') url: string,
-    @Body('name') createChannelDto: CreateChannelDto,
+    @Body() createChannelDto: CreateChannelDto,
     @GetUser() user: User,
   ) {
     return this.channelsService.createWorkspaceChannel(
@@ -72,7 +77,7 @@ export class ChannelsController {
     summary:
       '워크스페이스 url, 채널 name, 유저 email로 채널 멤버 초대하기 (채널 초대 기능)',
   })
-  @Post(':url/channles/:name/members')
+  @Post(':url/channels/:name/members')
   createWorkspaceChannelMember(
     @Param('url') url: string,
     @Param('name') name: string,
@@ -120,4 +125,23 @@ export class ChannelsController {
     );
   }
   */
+
+  @ApiOperation({
+    summary: '워크스페이스 특정채널 이미지 업로드하기 (이미지 업로드 기능)',
+  })
+  @UseInterceptors(FilesInterceptor('image', 10, multerOptions()))
+  @Post(':url/channels/:name/images')
+  async createWorkspaceChannelImages(
+    @Param('url') url: string,
+    @Param('name') name,
+    @UploadedFiles() files: Express.Multer.File[],
+    @GetUser() user: User,
+  ) {
+    return this.channelsService.createWorkspaceChannelImages(
+      url,
+      name,
+      files,
+      user.id,
+    );
+  }
 }

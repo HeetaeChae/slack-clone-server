@@ -7,11 +7,14 @@ import { ChannelMember } from 'src/entities/ChannelMember.entity';
 import { User } from 'src/entities/User.entity';
 import { ChannelChat } from 'src/entities/ChannelChat.entity';
 import { Workspace } from 'src/entities/Workspace.entity';
+import { ConfigModule } from '@nestjs/config';
+import { MulterModule } from '@nestjs/platform-express';
 
 @Module({
   controllers: [ChannelsController],
   providers: [ChannelsService],
   imports: [
+    ConfigModule.forRoot(),
     TypeOrmModule.forFeature([
       Channel,
       ChannelMember,
@@ -19,6 +22,7 @@ import { Workspace } from 'src/entities/Workspace.entity';
       ChannelChat,
       Workspace,
     ]),
+    MulterModule.register({ dest: './upload' }),
   ],
 })
 export class ChannelsModule {}

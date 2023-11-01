@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Channel } from 'src/entities/Channel.entity';
 import { ChannelChat } from 'src/entities/ChannelChat.entity';
@@ -22,6 +23,7 @@ import { UsersService } from './users.service';
       ChannelMember,
       ChannelChat,
     ]),
+    ConfigModule.forRoot(),
   ],
 })
 export class UsersModule {}

@@ -16,17 +16,20 @@ import { Dm } from './entities/Dm.entity';
 import { Mention } from './entities/Mention.entity';
 import { ChannelsModule } from './channels/channels.module';
 import { WorkspacesModule } from './workspaces/workspaces.module';
+import { DmsModule } from './dms/dms.module';
+import { MulterModule } from '@nestjs/platform-express';
+import { EventsGateway } from './events/events.gateway';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: process.env.HOST_2,
+      host: process.env.HOST_1,
       port: 3306,
-      username: process.env.USERNAME_2,
-      password: process.env.PASSWORD_2,
-      database: process.env.DATABASE_2,
+      username: process.env.USERNAME_1,
+      password: process.env.PASSWORD_1,
+      database: process.env.DATABASE_1,
       entities: [
         User,
         Workspace,
@@ -55,9 +58,10 @@ import { WorkspacesModule } from './workspaces/workspaces.module';
     AuthModule,
     ChannelsModule,
     WorkspacesModule,
+    DmsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, EventsGateway],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): any {

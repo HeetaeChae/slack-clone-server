@@ -1,4 +1,8 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/entities/User.entity';
 import { DataSource, Repository } from 'typeorm';
@@ -17,23 +21,15 @@ export class UsersService {
   ) {}
 
   async findByEmail(email: string) {
-    const user = await this.usersRepository.findOne({ where: { email } });
+    const user = await this.usersRepository
+      .createQueryBuilder('user')
+      .where('user.email = :email', { email })
+      .addSelect('user.password')
+      .getOne();
     if (!user) {
-      return null;
+      throw new UnauthorizedException('이메일이 존재하지 않습니다.');
     }
-  }
-
-  async findById(userId: string, done: CallableFunction) {
-    try {
-      const user = await this.usersRepository.findOneOrFail({
-        where: { id: parseInt(userId) },
-        select: ['id', 'email', 'nickname', 'password'],
-        relations: ['Workspaces'],
-      });
-      done(null, user);
-    } catch (error) {
-      done(error);
-    }
+    return user;
   }
 
   // 회원가입
@@ -59,6 +55,7 @@ export class UsersService {
       const workspace = queryRunner.manager.getRepository(Workspace).create();
       workspace.owner = userRes;
       workspace.name = `${nickname}의 워크스페이스`;
+      workspace.url = `${nickname}_workspace`;
       const workspaceRes = await queryRunner.manager
         .getRepository(Workspace)
         .save(workspace);

@@ -2,19 +2,27 @@ import {
   Body,
   Controller,
   ForbiddenException,
+  Get,
   Post,
   Response,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-import { ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiCookieAuth,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
+import { AuthGuard } from 'src/auth/auth.guard';
 import { LoggedInGuard } from 'src/auth/logged-in.guard';
 import { NotLoggedInGuard } from 'src/auth/not-logged-in.guard';
+import { GetUser } from 'src/common/decorators/user.decorator';
+import { User } from 'src/entities/User.entity';
 import { DataSource } from 'typeorm';
 import { JoinRequestDto } from './dto/join.request.dto';
 import { UsersService } from './users.service';
 
-@ApiCookieAuth('connect.sid')
+@ApiBearerAuth('jwt')
 @ApiTags('USER')
 @Controller('users')
 export class UsersController {
@@ -35,12 +43,10 @@ export class UsersController {
     }
   }
 
-  @ApiCookieAuth('connect.sid')
-  @ApiOperation({ summary: '로그아웃' })
-  @UseGuards(LoggedInGuard)
-  @Post('logout')
-  async logout(@Response() res) {
-    res.clearCookie('connect.sid', { httpOnly: true });
-    return res.send('ok');
+  @ApiOperation({ summary: '프로필 가져오기' })
+  @UseGuards(AuthGuard)
+  @Get('profile')
+  async getProfile(@GetUser() user: User) {
+    return user || false;
   }
 }

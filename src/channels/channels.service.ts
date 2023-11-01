@@ -92,9 +92,9 @@ export class ChannelsService {
       .createQueryBuilder('users')
       .innerJoin('users.channelMembers', 'channelMembers')
       .innerJoin('channelMembers.channel', 'channel')
-      .innerJoin('channels.workspace', 'workspace')
-      .where('channels.name = :name', { name })
-      .andWhere('workspaces.url = :url', { url })
+      .innerJoin('channel.workspace', 'workspace')
+      .where('channel.name = :name', { name })
+      .andWhere('workspace.url = :url', { url })
       .getMany();
   }
   // 워크스페이스 url, 채널 name, 유저 email로 채널 멤버 생성하기 (채널 가입 기능)
@@ -108,12 +108,14 @@ export class ChannelsService {
     if (!channel) {
       throw new HttpException('채널을 찾을 수 없습니다.', 403);
     }
+
     const user = await this.usersRepository
       .createQueryBuilder('user')
       .innerJoinAndSelect('user.workspaces', 'workspace')
       .where('user.email = :email', { email })
       .andWhere('workspace.url = :url', { url })
       .getOne();
+    console.log(user);
     if (!user) {
       throw new HttpException('유저를 찾을 수 없습니다.', 403);
     }
@@ -160,14 +162,25 @@ export class ChannelsService {
     content: string,
     myId: number,
   ) {}
+  // 워크스페이스 url, 채널 name, 날짜 정보로 안읽은 채널 개수 가져오기 (채널개수 가져오기 기능)
+  async getChannelUnreadsCount(url, name, after) {}
+  */
+
   // 워크스페이스 url, 채널 name, file, 유저 id로 채널 이미지 생성하기 (채널이미지 생성하기 기능)
   async createWorkspaceChannelImages(
     url: string,
     name: string,
     files: Express.Multer.File[],
     myId: number,
-  ) {}
-  // 워크스페이스 url, 채널 name, 날짜 정보로 안읽은 채널 개수 가져오기 (채널개수 가져오기 기능)
-  async getChannelUnreadsCount(url, name, after) {}
-  */
+  ) {
+    console.log(url, name, files, myId);
+    const channel = await this.channelsRepository
+      .createQueryBuilder('channel')
+      .innerJoin('channel.workspace', 'workspace')
+      .where('channel.name = :name')
+      .andWhere('workspace.url = :url')
+      .getOne();
+
+    console.log(channel);
+  }
 }
